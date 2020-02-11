@@ -75,6 +75,8 @@ func TestWork(t *testing.T){
 	time.Sleep(time.Second * 1)
 	ag.Stop()
 
+	ag.Receive("test")
+
 	if uint32(addTimes) != addCount {
 		t.Fatalf("addTimes:%d != addCount:%d\n", addTimes, addCount)
 	}
