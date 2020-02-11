@@ -1,0 +1,4 @@
+github.com/baidu/go-lib v0.0.0-20191217050907-c1bbbad6b030 h1:P8Bwa/d4AEH5qnHroVFI4hUqvy/1kh6UsfbDI+JJ2GI=
+github.com/baidu/go-lib v0.0.0-20191217050907-c1bbbad6b030/go.mod h1:FneHDqz3wLeDGdWfRyW4CzBbCwaqesLGIFb09N80/ww=
+github.com/jehiah/go-strftime v0.0.0-20171201141054-1d33003b3869 h1:IPJ3dvxmJ4uczJe5YQdrYB16oTJlGSC/OyZDqUk9xX4=
+github.com/jehiah/go-strftime v0.0.0-20171201141054-1d33003b3869/go.mod h1:cJ6Cj7dQo+O6GJNiMx+Pa94qKj+TG8ONdKHgMNIyyag=
