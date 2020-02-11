@@ -3,13 +3,31 @@ package aggregator
 import (
 	"testing"
 	"time"
+	"sync/atomic"
 )
 
+//test stop
+func TestStopAggregator(t *testing.T){
+
+	ag := NewAggregater(2, 10, 20)
+	ag.SetErrorHandler(func(msg string) {
+		t.Log(msg)
+	})
+	ag.StopAggregator()
+
+	if !ag.IsStopped(){
+		t.Error("stop failed")
+	}
+}
+
+//test work
 func TestWork(t *testing.T){
 
 	type Iv struct{
 		j int
 	}
+
+	var addCount uint32 = 0
 
 	ag := NewAggregater(2, 10, 20)
 	ag.SetErrorHandler(func(msg string) {
@@ -27,6 +45,7 @@ func TestWork(t *testing.T){
 				continue
 			}
 			list = append(list, v2)
+			atomic.AddUint32(&addCount,1)
 		}
 		t.Logf("%+v", list)
 
@@ -36,22 +55,30 @@ func TestWork(t *testing.T){
 		}
 		t.Logf("%+v", list2)
 
+
 		return nil
 	})
 
 	ag.Start()
 
-
-	for i:=0; i < 100;i++{
+	addTimes := 100
+	for i := 0; i < addTimes;i++{
 		var iv Iv
 		iv.j = i
 
 		go func( iv *Iv){
 			ag.Receive(iv)
-			time.Sleep(time.Millisecond * 50)
+			time.Sleep(time.Millisecond * 5)
 		}(&iv)
 	}
 
 	time.Sleep(time.Second * 1)
 	ag.Stop()
+
+	if uint32(addTimes) != addCount {
+		t.Fatalf("addTimes:%d != addCount:%d\n", addTimes, addCount)
+	}
+
+
+
 }

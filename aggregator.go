@@ -8,8 +8,6 @@ import (
 )
 
 
-
-
 const TickTime = time.Millisecond * 100
 
 //aggregation to deal
@@ -17,7 +15,7 @@ type aggregator struct{
 	wait *sync.WaitGroup
 	handler func([] interface{})error
 	errorHandler func(msg string)
-	aggregaterData []interface{}
+	aggregatorData []interface{}
 	processCount int //process count
 	lock *sync.Mutex
 	workCount int
@@ -35,7 +33,7 @@ func NewAggregater(workCount, chanSize, processCount int )*aggregator{
 		dataChan: make(chan interface{}, chanSize),
 		stopped: make(chan struct{}),
 		isStop: 0,
-		aggregaterData:make([]interface{},0),
+		aggregatorData:make([]interface{},0),
 		lock: &sync.Mutex{},
 	}
 }
@@ -76,7 +74,7 @@ func worker(a *aggregator){
 
 		if err := recover(); err != nil {
 			if a.errorHandler != nil {
-				a.errorHandler(fmt.Sprintf("aggregaterData has not deal %d", len(a.aggregaterData)))
+				a.errorHandler(fmt.Sprintf("aggregaterData has not deal %d", len(a.aggregatorData)))
 			}
 		}
 	}()
@@ -123,7 +121,7 @@ loop:
 func (a *aggregator) addData(toBeProcess []interface{}){
 	if len(toBeProcess) > 0{
 		a.lock.Lock()
-		a.aggregaterData = append(a.aggregaterData, toBeProcess...)
+		a.aggregatorData = append(a.aggregatorData, toBeProcess...)
 		a.lock.Unlock()
 	}
 }
@@ -144,7 +142,7 @@ func (a *aggregator) Stop(){
 
 	//range data chan
 	for v := range a.dataChan{
-		a.aggregaterData = append(a.aggregaterData, v)
+		a.aggregatorData = append(a.aggregatorData, v)
 	}
 
 	a.handleLeft()
@@ -152,23 +150,23 @@ func (a *aggregator) Stop(){
 
 
 func (a *aggregator) handleLeft(){
-	leftLen := len(a.aggregaterData)
+	leftLen := len(a.aggregatorData)
 	if leftLen == 0 {
 		return
 	}
 	//smaller then processCount
 	if leftLen < a.processCount{
-		a.handler(a.aggregaterData)
-		a.aggregaterData = nil
+		a.handler(a.aggregatorData)
+		a.aggregatorData = nil
 		return
 	}
 
 	//bigger then processCount
-	gap := len(a.aggregaterData)/a.processCount + 1
+	gap := len(a.aggregatorData)/a.processCount + 1
 	for i:=1;i < gap; i++{
 		start := (i-1)*a.processCount
 		end := i*a.processCount
-		toBeProcess := a.aggregaterData[start:end]
+		toBeProcess := a.aggregatorData[start:end]
 		toBeProcessLen := len(toBeProcess)
 		if toBeProcessLen <= 0{
 			break
@@ -179,27 +177,6 @@ func (a *aggregator) handleLeft(){
 			break
 		}
 	}
-	a.aggregaterData = nil
+	a.aggregatorData = nil
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
