@@ -8,7 +8,7 @@ import (
 )
 
 
-const TickTime = time.Millisecond * 100
+const DefaultTickTime = time.Millisecond * 500
 
 //aggregation to deal
 type aggregator struct{
@@ -22,6 +22,7 @@ type aggregator struct{
 	dataChan chan interface{}
 	stopped chan struct{}
 	isStop int32
+	tickFrequency time.Duration
 }
 
 //create object
@@ -35,6 +36,7 @@ func NewAggregator(workCount, chanSize, processCount int )*aggregator{
 		isStop: 0,
 		aggregatorData:make([]interface{},0),
 		lock: &sync.Mutex{},
+		tickFrequency:DefaultTickTime,
 	}
 }
 
@@ -46,6 +48,10 @@ func (a *aggregator)SetHandler(handler func([] interface{})error){
 //set error handler
 func (a *aggregator)SetErrorHandler(errorHandler func(msg string)){
 	a.errorHandler = errorHandler
+}
+
+func (a *aggregator)SetTickFrequency(duration time.Duration){
+	a.tickFrequency = duration
 }
 
 //receive data
@@ -83,7 +89,7 @@ func worker(a *aggregator){
 		}
 	}()
 
-	ticker := time.NewTicker(TickTime)
+	ticker := time.NewTicker(a.tickFrequency)
 	var toBeProcess []interface{}
 
 loop:

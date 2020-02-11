@@ -13,7 +13,7 @@ func TestStopAggregator(t *testing.T){
 	ag.SetErrorHandler(func(msg string) {
 		t.Log(msg)
 	})
-	ag.StopAggregator()
+	ag.StopHandle()
 
 	if !ag.IsStopped(){
 		t.Error("stop failed")
@@ -33,6 +33,7 @@ func TestWork(t *testing.T){
 	ag.SetErrorHandler(func(msg string) {
 		t.Log(msg)
 	})
+	ag.SetTickFrequency(time.Millisecond * 100)
 	ag.SetHandler(func(v []interface{})error{
 
 		var list []*Iv
