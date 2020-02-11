@@ -81,6 +81,15 @@ func TestWork(t *testing.T){
 		t.Fatalf("addTimes:%d != addCount:%d\n", addTimes, addCount)
 	}
 
+	//do left
+	for i:=0; i< addTimes;i++ {
+		var iv Iv
+		iv.j = i
+		ag.aggregatorData = append(ag.aggregatorData, &iv)
+	}
+	ag.handleLeft()
 
 
 }
+
+

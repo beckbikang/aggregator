@@ -178,5 +178,6 @@ func (a *aggregator) handleLeft(){
 		}
 	}
 	a.aggregatorData = nil
+
 }
 
