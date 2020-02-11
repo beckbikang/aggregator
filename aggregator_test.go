@@ -9,7 +9,7 @@ import (
 //test stop
 func TestStopAggregator(t *testing.T){
 
-	ag := NewAggregater(2, 10, 20)
+	ag := NewAggregator(2, 10, 20)
 	ag.SetErrorHandler(func(msg string) {
 		t.Log(msg)
 	})
@@ -29,7 +29,7 @@ func TestWork(t *testing.T){
 
 	var addCount uint32 = 0
 
-	ag := NewAggregater(2, 10, 20)
+	ag := NewAggregator(2, 10, 20)
 	ag.SetErrorHandler(func(msg string) {
 		t.Log(msg)
 	})

@@ -24,8 +24,8 @@ type aggregator struct{
 	isStop int32
 }
 
-
-func NewAggregater(workCount, chanSize, processCount int )*aggregator{
+//create object
+func NewAggregator(workCount, chanSize, processCount int )*aggregator{
 	return &aggregator{
 		wait:&sync.WaitGroup{},
 		workCount:workCount,
@@ -38,14 +38,17 @@ func NewAggregater(workCount, chanSize, processCount int )*aggregator{
 	}
 }
 
+//set handler
 func (a *aggregator)SetHandler(handler func([] interface{})error){
 	a.handler = handler
 }
 
+//set error handler
 func (a *aggregator)SetErrorHandler(errorHandler func(msg string)){
 	a.errorHandler = errorHandler
 }
 
+//receive data
 func (a *aggregator)Receive(data interface{}){
 	//not close
 	if a.IsStopped(){
@@ -54,7 +57,7 @@ func (a *aggregator)Receive(data interface{}){
 	a.dataChan<-data
 }
 
-//simple pool
+//start pool
 func (a *aggregator) Start(){
 
 	for i:=0; i < a.workCount; i++ {
@@ -65,6 +68,7 @@ func (a *aggregator) Start(){
 	}
 }
 
+//do some worker
 func worker(a *aggregator){
 	defer a.wait.Done()
 
@@ -87,12 +91,12 @@ loop:
 		select {
 		case <-a.stopped:
 			a.addData(toBeProcess)
-			a.StopAggregator()
+			a.StopHandle()
 			break loop
 		case data,ok := <- a.dataChan:
 			if a.IsStopped() || !ok{
 				a.addData(toBeProcess)
-				a.StopAggregator()
+				a.StopHandle()
 				break loop
 			}else{
 				toBeProcess = append(toBeProcess, data)
@@ -126,15 +130,17 @@ func (a *aggregator) addData(toBeProcess []interface{}){
 	}
 }
 
-
-func (a *aggregator)StopAggregator(){
+//stop
+func (a *aggregator)StopHandle(){
 	atomic.StoreInt32(&(a.isStop),1)
 }
 
+//check is stopped
 func (a *aggregator)IsStopped()bool{
 	return atomic.LoadInt32(&(a.isStop)) == 1
 }
 
+//stop
 func (a *aggregator) Stop(){
 	a.stopped <- struct{}{}
 	close(a.dataChan)
@@ -148,7 +154,7 @@ func (a *aggregator) Stop(){
 	a.handleLeft()
 }
 
-
+//handle left data
 func (a *aggregator) handleLeft(){
 	leftLen := len(a.aggregatorData)
 	if leftLen == 0 {
