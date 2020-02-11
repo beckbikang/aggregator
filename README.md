@@ -30,11 +30,10 @@ chanSize  receive chan size  缓存chan的大小
 processCount   batch size   批量处理的数据的大小
 
 
-na.SetHandler()
-na.SetErrorHandler()
+na.SetHandler(func([] interface{})error)
+na.SetErrorHandler(func(msg string))
 na.Start()
-
-na.Receive(msg)
+na.Receive(interface{})
 
 na.Stop()
 
