@@ -8,9 +8,6 @@ import (
 )
 
 
-import (
-	"github.com/baidu/go-lib/log"
-)
 
 
 const TickTime = time.Millisecond * 100
@@ -63,7 +60,6 @@ func (a *aggregator)Receive(data interface{}){
 func (a *aggregator) Start(){
 
 	for i:=0; i < a.workCount; i++ {
-		log.Logger.Info("start aggregater worker :%d",i)
 		go func(){
 			a.wait.Add(1)
 			worker(a)
@@ -82,7 +78,6 @@ func worker(a *aggregator){
 			if a.errorHandler != nil {
 				a.errorHandler(fmt.Sprintf("aggregaterData has not deal %d", len(a.aggregaterData)))
 			}
-			log.Logger.Error("worker error  %+v", err)
 		}
 	}()
 
@@ -103,16 +98,16 @@ loop:
 				break loop
 			}else{
 				toBeProcess = append(toBeProcess, data)
-				log.Logger.Info("aggregate Data append data toBeProcess len = %d", len(toBeProcess))
 				if len(toBeProcess) >= a.processCount {
 					err := a.handler(toBeProcess)
 					if err == nil {
 						toBeProcess = make([]interface{}, 0)
 					}else {
-						log.Logger.Error("aggregate handler msg failed %+v",toBeProcess)
+						if a.errorHandler != nil {
+
+						}
+						a.errorHandler(fmt.Sprintf("aggregate handler msg failed %+v",toBeProcess))
 					}
-				}else {
-					log.Logger.Info(" %d is smaller than %d ", len(toBeProcess), a.processCount)
 				}
 			}
 		case <-ticker.C:
@@ -126,14 +121,11 @@ loop:
 
 //add data
 func (a *aggregator) addData(toBeProcess []interface{}){
-	log.Logger.Info("addData toBeProcess length =%d", len(toBeProcess))
 	if len(toBeProcess) > 0{
 		a.lock.Lock()
 		a.aggregaterData = append(a.aggregaterData, toBeProcess...)
 		a.lock.Unlock()
 	}
-	log.Logger.Info("addData addData stopped aggregate Data length =%d", len(a.aggregaterData))
-
 }
 
 
@@ -150,8 +142,6 @@ func (a *aggregator) Stop(){
 	close(a.dataChan)
 	a.wait.Wait()
 
-	log.Logger.Info("aggregate.stop=%d", len(a.aggregaterData))
-
 	//range data chan
 	for v := range a.dataChan{
 		a.aggregaterData = append(a.aggregaterData, v)
@@ -163,18 +153,11 @@ func (a *aggregator) Stop(){
 
 func (a *aggregator) handleLeft(){
 	leftLen := len(a.aggregaterData)
-
-	log.Logger.Info("handleLeft length=%d", leftLen)
-
 	if leftLen == 0 {
-		log.Logger.Info("aggregate Data is empty")
 		return
 	}
-	log.Logger.Info("aggregate left %+v", a.aggregaterData)
-
 	//smaller then processCount
 	if leftLen < a.processCount{
-		log.Logger.Info("aggregate handle left")
 		a.handler(a.aggregaterData)
 		a.aggregaterData = nil
 		return
