@@ -20,6 +20,27 @@ we can gather data together and insert batch
 https://github.com/beckbikang/aggregator
 ```
 
+## how to use
+
+```
+na := NewAggregator(workCount, chanSize, processCount int )
+
+workCount pool size   池的大小，goroutine个数
+chanSize  receive chan size  缓存chan的大小
+processCount   batch size   批量处理的数据的大小
+
+
+na.SetHandler()
+na.SetErrorHandler()
+na.Start()
+
+na.Receive(msg)
+
+na.Stop()
+
+
+
+```
 
 ## Example
 
