@@ -48,4 +48,6 @@ rebel.xml
 focus
 core/INFO/
 
+coverage.txt
+
 ##vendor/
