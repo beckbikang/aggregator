@@ -17,7 +17,7 @@ we can gather data together and insert batch
 ## Installation
 
 ```
-https://github.com/beckbikang/aggregator
+go get -u github.com/beckbikang/aggregator
 ```
 
 ## how to use
