@@ -58,7 +58,7 @@ func main() {
 		j int
 	}
 
-	ag := aggregator.NewAggregater(2, 10, 20)
+	ag := aggregator.NewAggregator(2, 10, 20)
 	ag.SetErrorHandler(func(msg string) {
 		fmt.Println(msg)
 	})
